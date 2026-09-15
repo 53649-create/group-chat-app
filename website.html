@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroupChat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #ffffff;
+            color: #24292e;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        header {
+            background: white;
+            border-bottom: 1px solid #e1e4e8;
+            padding: 16px 0;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 600;
+            color: #0366d6;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 32px;
+            padding: 40px 0;
+        }
+
+        .readme-section {
+            color: #24292e;
+        }
+
+        .readme-section h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #e1e4e8;
+            padding-bottom: 16px;
+        }
+
+        .readme-section h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 24px 0 16px 0;
+            border-bottom: 1px solid #e1e4e8;
+            padding-bottom: 8px;
+        }
+
+        .readme-section p {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            color: #586069;
+        }
+
+        .readme-section ul {
+            list-style: none;
+            margin-bottom: 16px;
+            padding-left: 0;
+        }
+
+        .readme-section li {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 8px;
+            color: #586069;
+        }
+
+        .readme-section li strong {
+            color: #24292e;
+        }
+
+        .chat-section {
+            position: sticky;
+            top: 16px;
+            background: #f6f8fa;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            padding: 24px;
+            height: fit-content;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .chat-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #24292e;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border: 1px solid #e1e4e8;
+            border-radius: 4px;
+            padding: 12px;
+            background: white;
+        }
+
+        .message {
+            padding: 8px 12px;
+            background: #f6f8fa;
+            border-left: 3px solid #0366d6;
+            border-radius: 3px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .message-user {
+            font-weight: 600;
+            color: #0366d6;
+            font-size: 12px;
+        }
+
+        .message-text {
+            color: #24292e;
+            margin-top: 4px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e1e4e8;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #0366d6;
+            box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
+        }
+
+        .input-group button {
+            padding: 8px 16px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .input-group button:hover {
+            background: #218838;
+        }
+
+        .input-group button:active {
+            background: #1e7e34;
+        }
+
+        .username-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .username-modal.hidden {
+            display: none;
+        }
+
+        .modal-dialog {
+            background: white;
+            border-radius: 6px;
+            padding: 24px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-dialog h2 {
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .modal-dialog input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e1e4e8;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .modal-dialog input:focus {
+            outline: none;
+            border-color: #0366d6;
+        }
+
+        .modal-dialog button {
+            width: 100%;
+            padding: 10px;
+            background: #0366d6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .modal-dialog button:hover {
+            background: #0256c7;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-section {
+                position: static;
+            }
+
+            .chat-container {
+                height: 400px;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f6f8fa;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5da;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #959da5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Username Modal -->
+    <div id="usernameModal" class="username-modal">
+        <div class="modal-dialog">
+            <h2>Welcome to GroupChat 👋</h2>
+            <input type="text" id="nameInput" placeholder="Enter your username" maxlength="30">
+            <button onclick="setUsername()">Start Chatting</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">💬 GroupChat</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="main-content">
+            <!-- README Section -->
+            <div class="readme-section">
+                <h1>GroupChat - Real-time Group Chat Application</h1>
+                
+                <p>A modern, real-time group chat web application with password-protected rooms, image sharing, and a clean UI.</p>
+
+                <h2>Features ✨</h2>
+                <ul>
+                    <li><strong>Real-time Messaging:</strong> Instant message delivery using WebSockets (Socket.IO)</li>
+                    <li><strong>Group Chats:</strong> Create and join multiple chat rooms</li>
+                    <li><strong>Password Protection:</strong> Set optional passwords for private chat rooms</li>
+                    <li><strong>Image Sharing:</strong> Share images directly in chat</li>
+                    <li><strong>Member List:</strong> See who's currently in the room</li>
+                    <li><strong>Typing Indicators:</strong> See when others are typing</li>
+                    <li><strong>Clean UI:</strong> Modern, responsive interface</li>
+                    <li><strong>System Messages:</strong> Notifications when users join/leave</li>
+                    <li><strong>User Authentication:</strong> Enter username before joining</li>
+                </ul>
+
+                <h2>Tech Stack 🛠️</h2>
+                <p><strong>Frontend:</strong></p>
+                <ul>
+                    <li>HTML5 & CSS3</li>
+                    <li>Vanilla JavaScript</li>
+                    <li>WebSockets (Socket.IO)</li>
+                </ul>
+
+                <p><strong>Backend:</strong></p>
+                <ul>
+                    <li>Node.js</li>
+                    <li>Express.js</li>
+                    <li>Socket.IO</li>
+                    <li>bcryptjs</li>
+                </ul>
+
+                <h2>How to Use 🚀</h2>
+                <p>Just start chatting! The chat interface is on the right side. Enter your username and begin messaging with others in real-time.</p>
+            </div>
+
+            <!-- Chat Section -->
+            <div class="chat-section">
+                <div class="chat-container">
+                    <div class="chat-header">💬 Live Chat</div>
+                    <div class="messages" id="messages">
+                        <div class="message">
+                            <div class="message-user">System</div>
+                            <div class="message-text">Welcome to GroupChat! Start chatting now.</div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="messageInput" placeholder="Type a message..." autocomplete="off">
+                        <button onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let username = '';
+        const messages = [];
+
+        function setUsername() {
+            const input = document.getElementById('nameInput');
+            username = input.value.trim();
+            if (username) {
+                document.getElementById('usernameModal').classList.add('hidden');
+                document.getElementById('messageInput').focus();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (text && username) {
+                addMessage(username, text);
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function addMessage(user, text) {
+            const messagesDiv = document.getElementById('messages');
+            const messageEl = document.createElement('div');
+            messageEl.className = 'message';
+            messageEl.innerHTML = `
+                <div class="message-user">${escapeHtml(user)}</div>
+                <div class="message-text">${escapeHtml(text)}</div>
+            `;
+            messagesDiv.appendChild(messageEl);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        document.getElementById('nameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') setUsername();
+        });
+
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
